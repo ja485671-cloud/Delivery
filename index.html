@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>物流查詢 · 謝淑蘭 景儀團隊</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Space+Mono:wght@400;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F6F3EC; --card:#FFFDF8; --ink:#1E2420; --muted:#6B7169;
+  --pine:#2F5D50; --pine-ink:#214038; --pine-soft:#E5EDE8;
+  --ochre:#A9781F; --ochre-soft:#F3E9D2;
+  --line:#E2DCD1; --line-strong:#CFC7B7;
+  --shadow:0 1px 0 rgba(30,36,32,.04), 0 6px 22px -14px rgba(30,36,32,.32);
+  --disp:"Space Grotesk","Noto Sans TC",system-ui,sans-serif;
+  --body:"Noto Sans TC",system-ui,-apple-system,sans-serif;
+  --mono:"Space Mono",ui-monospace,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font-family:var(--body);
+  -webkit-font-smoothing:antialiased;line-height:1.5;
+  padding:0 0 64px;max-width:640px;margin:0 auto;}
+
+/* ---- masthead: shipping label ---- */
+.label{margin:16px 14px 0;border:1.5px solid var(--ink);border-radius:14px;
+  background:var(--card);box-shadow:var(--shadow);overflow:hidden}
+.label__top{display:flex;align-items:center;justify-content:space-between;
+  padding:11px 16px;border-bottom:1.5px dashed var(--line-strong);
+  background:repeating-linear-gradient(135deg,transparent,transparent 9px,rgba(47,93,80,.045) 9px,rgba(47,93,80,.045) 18px)}
+.eyebrow{font-family:var(--disp);font-weight:700;letter-spacing:.22em;
+  text-transform:uppercase;font-size:11px;color:var(--pine)}
+.eyebrow b{letter-spacing:.05em}
+.route{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.label__body{padding:16px 16px 14px}
+.addressee{font-family:var(--disp);font-weight:700;font-size:27px;letter-spacing:-.01em;margin:0}
+.sub{color:var(--muted);font-size:13px;margin-top:3px}
+.manifest{display:flex;gap:8px;margin-top:14px}
+.m{flex:1;border:1px solid var(--line);border-radius:9px;padding:9px 10px;background:var(--paper)}
+.m .n{font-family:var(--disp);font-weight:700;font-size:21px;line-height:1}
+.m .k{font-size:11px;color:var(--muted);margin-top:4px;letter-spacing:.02em}
+.m.is-ship .n{color:var(--pine)}
+.m.is-wait .n{color:var(--ochre)}
+
+/* ---- controls ---- */
+.controls{position:sticky;top:0;z-index:5;background:var(--paper);
+  padding:12px 14px 10px;margin-top:14px;
+  border-bottom:1px solid var(--line)}
+.search{position:relative}
+.search svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--muted)}
+.search input{width:100%;font-family:var(--body);font-size:15px;color:var(--ink);
+  padding:12px 14px 12px 40px;border:1.5px solid var(--line-strong);border-radius:11px;
+  background:var(--card);outline:none}
+.search input:focus{border-color:var(--pine);box-shadow:0 0 0 3px var(--pine-soft)}
+.row{display:flex;gap:9px;margin-top:9px}
+.seg{display:inline-flex;background:var(--card);border:1.5px solid var(--line-strong);
+  border-radius:10px;padding:3px;flex:1}
+.seg button{flex:1;border:0;background:transparent;font-family:var(--body);font-size:13px;
+  font-weight:500;color:var(--muted);padding:8px 4px;border-radius:7px;cursor:pointer;white-space:nowrap}
+.seg button[aria-pressed=true]{background:var(--ink);color:#fff}
+select{font-family:var(--body);font-size:13px;color:var(--ink);background:var(--card);
+  border:1.5px solid var(--line-strong);border-radius:10px;padding:8px 30px 8px 12px;cursor:pointer;
+  appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%236B7169' stroke-width='2'%3E%3Cpath d='M2 4l4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 11px center}
+
+/* ---- list ---- */
+.list{padding:12px 14px 0;display:flex;flex-direction:column;gap:11px}
+.order{border:1px solid var(--line);border-radius:13px;background:var(--card);
+  box-shadow:var(--shadow);overflow:hidden;animation:rise .4s both}
+@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.order__head{display:flex;align-items:flex-start;gap:12px;padding:14px 15px;cursor:pointer;
+  width:100%;text-align:left;border:0;background:transparent;font-family:var(--body)}
+.order__main{flex:1;min-width:0}
+.prod{font-family:var(--disp);font-weight:600;font-size:16px;color:var(--ink);
+  line-height:1.3;word-break:break-word}
+.tag{font-size:12px;color:var(--muted);margin-top:4px;word-break:break-word}
+.tag b{color:var(--pine-ink);font-weight:500}
+.chip{flex-shrink:0;font-size:12px;font-weight:700;padding:5px 10px;border-radius:999px;white-space:nowrap;letter-spacing:.01em}
+.chip.ship{background:var(--pine);color:#fff}
+.chip.wh{background:var(--ochre-soft);color:var(--ochre)}
+.chip.proc{background:#ECEAE4;color:var(--muted)}
+.caret{flex-shrink:0;color:var(--line-strong);transition:transform .25s;margin-top:2px}
+.order.open .caret{transform:rotate(180deg)}
+
+/* postmark */
+.stamp{margin:0 15px 13px;display:inline-flex;align-items:center;gap:9px;
+  font-family:var(--mono);font-size:12.5px;color:var(--pine-ink);
+  border:1.5px solid var(--pine);border-radius:7px;padding:6px 10px;
+  background:repeating-linear-gradient(45deg,transparent,transparent 6px,rgba(47,93,80,.05) 6px,rgba(47,93,80,.05) 12px)}
+.stamp .dot{width:6px;height:6px;border-radius:50%;background:var(--pine)}
+.stamp.alt{border-color:var(--line-strong);color:var(--muted);background:none}
+.stamp.alt .dot{background:var(--line-strong)}
+
+/* details */
+.detail{display:grid;grid-template-rows:0fr;transition:grid-template-rows .28s ease}
+.order.open .detail{grid-template-rows:1fr}
+.detail__in{overflow:hidden}
+.dl{border-top:1px dashed var(--line-strong);margin:0 15px;padding:13px 0 15px;
+  display:grid;grid-template-columns:auto 1fr;gap:9px 14px;font-size:13.5px}
+.dl dt{color:var(--muted);white-space:nowrap}
+.dl dd{margin:0;color:var(--ink);word-break:break-word}
+.dl dd.code{font-family:var(--mono);font-size:12.5px}
+
+.empty{text-align:center;color:var(--muted);padding:54px 24px;font-size:14px}
+.empty b{display:block;color:var(--ink);font-size:16px;margin-bottom:6px;font-family:var(--disp)}
+.foot{text-align:center;color:var(--muted);font-size:11px;padding:26px 16px 0;line-height:1.6}
+
+:focus-visible{outline:2px solid var(--pine);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="label">
+  <div class="label__top">
+    <span class="eyebrow">物流查詢 · <b>韓國代購</b></span>
+    <span class="route">KR&nbsp;→&nbsp;TW</span>
+  </div>
+  <div class="label__body">
+    <h1 class="addressee">謝淑蘭</h1>
+    <div class="sub">景儀團隊 · 訂單物流狀態</div>
+    <div class="manifest">
+      <div class="m"><div class="n" id="cTotal">0</div><div class="k">訂單</div></div>
+      <div class="m is-ship"><div class="n" id="cShip">0</div><div class="k">已出貨</div></div>
+      <div class="m is-wait"><div class="n" id="cWait">0</div><div class="k">待出貨</div></div>
+    </div>
+  </div>
+</header>
+
+<div class="controls">
+  <div class="search">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+    <input id="q" type="search" inputmode="search" placeholder="搜尋帳號、收貨人或品名" autocomplete="off">
+  </div>
+  <div class="row">
+    <div class="seg" id="seg">
+      <button data-f="all" aria-pressed="true">全部</button>
+      <button data-f="wait" aria-pressed="false">待出貨</button>
+      <button data-f="ship" aria-pressed="false">已出貨</button>
+    </div>
+    <select id="month" aria-label="月份"></select>
+  </div>
+</div>
+
+<main class="list" id="list"></main>
+<p class="foot">收貨資訊僅供本團隊查詢 · 帳號密碼不會顯示於此頁<br><span id="stamp"></span></p>
+
+<script>
+/* ====== 上線設定：填入 Apps Script 網址與 token 即切換為即時資料 ====== */
+const CONFIG = { API_URL:"https://script.googleusercontent.com/macros/echo?user_content_key=AUkAhnQpK7HKmXU-MsxcXD2rM7z3NkathdReUeYrBSo0ZR-z8eTh2VGUdQ3TJkA3zM9oOltWg377h1RV5NOnTk9ueYlT9Zu1wawpnqEj0yjKOkA5X_tmXz_aIqOcVO52H7GBnsOgcVFO8BHLAYXX4qnAVEOPtaTgygQ167MXsf0cGD1r12OwApF-iAFbiYb5cB_Eterkdij9--ORLwK5ZHsjKUkyKp6Y-ocJ24Ick5hM3UnYALK-7RotucOTmt7Y2b9rWABmIxQ0hDBadiFiWXiLdaV-KiGE1Q&lib=McxoUr7aJ30Z73sOAh55w5v-qERZM9JSA", TEAM:"謝淑蘭", KEY:"shulan-6f3a91" };
+/* 留空 = 使用本頁內建的六月實際資料（離線可看）。 */
+
+const SAMPLE = [{"month": "2026-06", "team": "景儀團隊-謝淑蘭 6/1訂單1（韓購）", "acct": "19674505", "name": "蘇凡恩", "product": "三倍高蛋白粉*3盒", "receiver": "933719881", "phone": "收件人同是黃牧芬，寄到7-11新士林門市的，請併單寄。", "addr": "黃牧芬", "warehouse": "6/9*", "shipdate": "6/10", "tracking": "C48583111027", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭6/3訂單1（韓購）", "acct": "10226616", "name": "許玉青", "product": "男寶*6瓶", "receiver": "900623802", "phone": "收件人 鄒淼慶寄至上述門市，可併單寄出。 超商地址：桃園市龍潭區民族路372、374號", "addr": "鄒淼慶", "warehouse": "6/9*", "shipdate": "6/10", "tracking": "C48588954619", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭6/4訂單2（韓購）", "acct": "42035561", "name": "", "product": "升級版益生菌*2盒", "receiver": "921588421", "phone": "收件人舒麗芙寄到登峰門市可以併單寄出", "addr": "舒麗芙", "warehouse": "6/13", "shipdate": "6/14", "tracking": "C60211066863", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭6/4訂單1（韓購）", "acct": "47280970", "name": "", "product": "奶薊紅景天*10盒", "receiver": "976179716", "phone": "收件人袁麗平，同是寄到花壇門市，可以併單。", "addr": "袁麗平", "warehouse": "6/13", "shipdate": "6/14", "tracking": "C60212173503", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭 6/4訂單4（韓購）", "acct": "24564786", "name": "薛素雅", "product": "維生素C2000*4盒", "receiver": "938719058", "phone": "(轉交牧芬）收件人：謝淑蘭寄到江陵門市的，可以併單寄出。", "addr": "謝淑蘭", "warehouse": "6/10", "shipdate": "6/11", "tracking": "C52273706925", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭6/4訂單5（韓購）", "acct": "42945679", "name": "", "product": "二合一阿拉比卡零糖咖啡*3盒", "receiver": "955569060", "phone": "", "addr": "江雪卿", "warehouse": "6/10", "shipdate": "6/11", "tracking": "郵局", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭6/4訂單3（韓購）", "acct": "42035561", "name": "", "product": "升級版益生菌*1盒 升級版鳳梨酵素*4盒", "receiver": "921588421", "phone": "收件人舒麗芙寄到登峰門市可以併單寄出。", "addr": "舒麗芙", "warehouse": "6/9*", "shipdate": "6/14", "tracking": "併單", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭6/5訂單1（韓購）", "acct": "43020709", "name": "本團都會集中", "product": "諾麗果4瓶組×1組", "receiver": "989482307", "phone": "收件人莊緁縈寄到潭興門市的，可以併單寄出。", "addr": "莊緁縈", "warehouse": "6/10", "shipdate": "6/11", "tracking": "C52283708388， C52285465488", "status": "shipped"}, {"month": "2026-06", "team": "爆開漏出賠客戶-淑蘭吳思瑤6/1訂單1(韓)", "acct": "31307129", "name": "奇右左玉秀左麗華左韓國帳號", "product": "諾麗果隨身包*2盒", "receiver": "922060522", "phone": "補訂給客人，共3盒", "addr": "吳思瑤", "warehouse": "6/10", "shipdate": "6/11", "tracking": "C52289898110", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭6/6訂單2（韓購）", "acct": "41682069", "name": "曾愛惠", "product": "女性益生菌*4盒", "receiver": "965100703", "phone": "", "addr": "林惠卿", "warehouse": "6/13", "shipdate": "6/14", "tracking": "C60213634576", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭6/7訂單1（韓購）", "acct": "34874463", "name": "陳麗羽", "product": "精油噴霧*3瓶", "receiver": "909908866", "phone": "", "addr": "武氏幸", "warehouse": "6/13", "shipdate": "6/14", "tracking": "郵局", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭6/7訂單2（韓購）", "acct": "32534085", "name": "", "product": "六部曲的安瓶*3瓶", "receiver": "909908866", "phone": "", "addr": "武氏幸", "warehouse": "6/13", "shipdate": "6/14", "tracking": "併單", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭6/6訂單1（韓購）", "acct": "32534085", "name": "", "product": "蜂膠噴霧*1盒         維C500mg*3盒", "receiver": "938719058", "phone": "(轉交牧芬）收件人：謝淑蘭寄到江陵門市的，可以併單寄出。", "addr": "謝淑蘭", "warehouse": "6/13", "shipdate": "6/14", "tracking": "C60214781150", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭6/7訂單3（韓購）", "acct": "35721687", "name": "", "product": "維C2000mg*2盒 高級魚油*2瓶", "receiver": "938719058", "phone": "收件人：謝淑蘭寄到江陵門市的，可以併單寄出。", "addr": "謝淑蘭", "warehouse": "6/13", "shipdate": "6/14", "tracking": "併單", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭 6/8訂單1（韓購）", "acct": "36722420", "name": "鄭心婷", "product": "顧胃寶*4盒", "receiver": "965100703", "phone": "收件人：林惠卿寄到美河門市的，可以併單寄出。", "addr": "林惠卿", "warehouse": "6/13", "shipdate": "6/14", "tracking": "併單", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭 6/8訂單2（韓購）", "acct": "13813266", "name": "留曉芳", "product": "MSM薑黃錠*4盒", "receiver": "936605410", "phone": "收件人寄到上述地址，可以併單寄出。", "addr": "吳秋薇", "warehouse": "6/13", "shipdate": "6/14", "tracking": "郵局", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭6/9訂單1（韓購）", "acct": "48429006", "name": "蔡昀錐", "product": "三倍高蛋白粉*3盒", "receiver": "955569060", "phone": "（亭玉）收件人江雪卿寄到嘉義縣大林鎮溝背里191-3號的，可以併單寄。", "addr": "江雪卿", "warehouse": "6/13*", "shipdate": "6/14", "tracking": "郵局", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭6/9訂單2（AZA韓國）", "acct": "48429006", "name": "蔡昀錐", "product": "超級減肥水藤黃果,2g*14包（買5送1）*2組 CJ대한통운 698478935172", "receiver": "955569060", "phone": "（亭玉）收件人江雪卿寄到嘉義縣大林鎮溝背里191-3號的，可以併單寄。", "addr": "江雪卿", "warehouse": "6/13*", "shipdate": "6/14", "tracking": "併單", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭 6/9訂單3（韓購）", "acct": "48478258", "name": "ERGHO HIWRGU", "product": "雪白化妝水×1瓶 雪白日霜（50ml)*1瓶 雪白防曬×1 (亮膚)*1瓶 凝萃化妝水×1瓶 玫瑰噴霧×2瓶 維他命K2+D3*4瓶組*1組", "receiver": "920422621", "phone": "收件人林優妹寄到壢都門市的，可以併單寄出。", "addr": "蔡夢如", "warehouse": "6/13*", "shipdate": "6/21", "tracking": "", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭6/11訂單2（韓購）", "acct": "32531562", "name": "", "product": "防曬霜(裸膚）4瓶組*1組 0284    雪白凝萃美白防曬乳*1瓶  1531 雪白凝萃保濕日霜*1瓶     1528 500維C*2盒", "receiver": "938719058", "phone": "（惠玲妹）收件人：謝淑蘭寄到江陵門市的，可以併單寄出。", "addr": "謝淑蘭", "warehouse": "6/19", "shipdate": "6/20", "tracking": "", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭6/11訂單4（韓購）", "acct": "S5003507", "name": "黃心潔", "product": "升級版海藻油*1瓶        維他命軟糖*2盒", "receiver": "936086717", "phone": "收件人陳靖茗，寄至新北市中和區中興街202巷18號10樓之3，可併單寄出。", "addr": "陳靖茗", "warehouse": "6/20", "shipdate": "6/21", "tracking": "", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭6/11訂單3（韓購）更正帳號", "acct": "41242244", "name": "", "product": "螺旋藻*4瓶         女性益生菌*1瓶", "receiver": "933719881", "phone": "收件人同是黃牧芬，寄到7-11新士林門市的，請併單寄。", "addr": "黃牧芬", "warehouse": "6/20", "shipdate": "6/21", "tracking": "", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭6/13訂單1（AZA韓購）", "acct": "10233207", "name": "", "product": "Melavera植物性褪黑激素5mg,4盒組*1組（=4盒） CJ대한통운 589454731285", "receiver": "938719058", "phone": "（轉永鴻）收件人：謝淑蘭寄到江陵門市的，可以併單寄出。", "addr": "謝淑蘭", "warehouse": "6/19", "shipdate": "6/20", "tracking": "", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭6/14訂單2（韓購）", "acct": "44832886", "name": "", "product": "螺旋藻*4瓶", "receiver": "936086717", "phone": "收件人陳靖茗，寄至新北市中和區中興街202巷18號10樓之3，可併單寄出。", "addr": "陳靖茗", "warehouse": "6/19", "shipdate": "6/21", "tracking": "", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭6/14訂單3（韓購）", "acct": "44119573", "name": "", "product": "蜂蜜飲4盒組×1組", "receiver": "936086717", "phone": "收件人陳靖茗，寄至新北市中和區中興街202巷18號10樓之3，可併單寄出。", "addr": "陳靖茗", "warehouse": "6/19", "shipdate": "6/21", "tracking": "", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭5/1訂單1(韓購）", "acct": "43411851", "name": "", "product": "蜂蜜飲 60包4盒組×1組", "receiver": "933070436", "phone": "收件人江呂碧霞郵寄到上址，可以併貨寄出。", "addr": "江呂碧霞", "warehouse": "5/6*", "shipdate": "5/7", "tracking": "郵局", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭5/1訂單2（韓購）", "acct": "44508923", "name": "", "product": "顧胃寶*2盒", "receiver": "933070436", "phone": "收件人江呂碧霞郵寄到上址，可以併貨寄出。", "addr": "江呂碧霞", "warehouse": "5/5", "shipdate": "5/7", "tracking": "併單", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭5/1訂單3（紐西蘭購）", "acct": "44695879", "name": "", "product": "綠唇貽貝油三盒組*1組 주문번호 :7212605010000026", "receiver": "955569060", "phone": "收件人江雪卿郵寄上述地址的，可以併單寄出。", "addr": "江雪卿", "warehouse": "5/15", "shipdate": "5/16", "tracking": "", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭 5/1訂單4（韓購）", "acct": "44290462", "name": "", "product": "高濃度魚油*6瓶", "receiver": "976179716", "phone": "同收件人袁麗平，寄到彰化縣花壇鄉花壇街345號的，可以併單寄。", "addr": "袁麗平", "warehouse": "", "shipdate": "", "tracking": "", "status": "processing"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭5/1訂單5（韓購）", "acct": "44530903", "name": "", "product": "升級版鳳梨酵素*5盒 敏感型牙膏組，100g*3入*1組", "receiver": "976179716", "phone": "同收件人袁麗平，寄到彰化縣花壇鄉花壇街345號的，可以併單寄。", "addr": "袁麗平", "warehouse": "5/5", "shipdate": "5/21", "tracking": "", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭 5/1訂單6（韓購）", "acct": "48115689", "name": "", "product": "升級版益生菌*4盒", "receiver": "976179716", "phone": "同收件人袁麗平，寄到彰化縣花壇鄉花壇街345號的，可以併單寄。", "addr": "袁麗平", "warehouse": "5/6*", "shipdate": "5/21", "tracking": "", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭5/1訂單7（韓購）", "acct": "45210442", "name": "", "product": "顧胃寶*4盒", "receiver": "977586153", "phone": "收件人李永鴻寄到懷得門市的，可以併單寄出。（靖姐夥伴）", "addr": "李永鴻", "warehouse": "5/6*", "shipdate": "5/7", "tracking": "T36857910873， T36859695145", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭5/1訂單10（AZA韓購）", "acct": "34410356", "name": "曾姿庭", "product": "夜間睡眠去脂綠茶錠（買3送1）*2組 한진택배 521179364226", "receiver": "932918435", "phone": "收件人：姚素漪寄到興和門市的，可以併單寄出。", "addr": "姚素漪", "warehouse": "5/12", "shipdate": "5/13", "tracking": "T57773221785", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭5/1訂單11（韓購）", "acct": "47723163", "name": "", "product": "升級版益生菌*2盒", "receiver": "936086717", "phone": "收件人陳靖茗，寄至新北市中和區中興街202巷18號10樓之3，可併單寄出。", "addr": "陳靖茗", "warehouse": "5/6*", "shipdate": "5/7", "tracking": "郵局", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭5/1訂單12（韓購）", "acct": "41226002", "name": "", "product": "S.C.I. 益生菌*2瓶", "receiver": "938719058", "phone": "", "addr": "謝淑蘭", "warehouse": "5/7*", "shipdate": "5/9", "tracking": "併單", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭 5/1訂單15（韓購）", "acct": "27183362", "name": "", "product": "沙龍染髮#3C金棕色*6盒", "receiver": "936086717", "phone": "收件人陳靖茗，寄至新北市中和區中興街202巷18號10樓之3，可併單寄出。", "addr": "陳靖茗", "warehouse": "5/6*", "shipdate": "5/7", "tracking": "併單", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭5/1訂單16（AZA韓購）", "acct": "29737073", "name": "蕭惠英", "product": "夜間睡眠去脂綠茶錠（買3送1）*5組 한진택배 521179366083", "receiver": "932918435", "phone": "收件人：姚素漪寄到興和門市的，可以併單寄出", "addr": "姚素漪", "warehouse": "5/8", "shipdate": "5/13", "tracking": "", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭5/1訂單14（韓購）", "acct": "45301127", "name": "", "product": "升級版益生菌*4盒", "receiver": "977586153", "phone": "收件人李永鴻寄到懷得門市的，可以併單寄出。（靖姐夥伴）", "addr": "李永鴻", "warehouse": "5/6*", "shipdate": "5/7", "tracking": "併單", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭5/2訂單1（AZA韓購）", "acct": "32331439", "name": "曾聖芬", "product": "夜間睡眠去脂綠茶錠（買3送1）*1組 한진택배 521179364333", "receiver": "938719058", "phone": "收件人：謝淑蘭寄到江陵門市的，可以併單寄出。", "addr": "謝淑蘭", "warehouse": "5/8", "shipdate": "5/9", "tracking": "T44515682595", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭5/2訂單2（AZA韓購）", "acct": "41733034", "name": "徐金連", "product": "夜間睡眠去脂綠茶錠（買3送1）*1組 한진택배 521179364344", "receiver": "938719058", "phone": "收件人：謝淑蘭寄到江陵門市的，可以併單寄出。", "addr": "謝淑蘭", "warehouse": "5/8", "shipdate": "5/9", "tracking": "併單", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭 5/3訂單2（韓購）", "acct": "47497933", "name": "", "product": "韓版益生菌*2", "receiver": "938719058", "phone": "（廷的周老）收件人謝淑蘭寄到江陵門市的，可以併單寄出。", "addr": "謝淑蘭", "warehouse": "5/6*", "shipdate": "5/7", "tracking": "T36867558808", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭 5/3訂單2（韓購）", "acct": "38207201", "name": "", "product": "升級版益生菌*2盒 S.C.I. 益生菌*1盒", "receiver": "938719058", "phone": "（琪玲的）收件人謝淑蘭寄到江陵門市的，可以併單寄出。", "addr": "謝淑蘭", "warehouse": "5/6*", "shipdate": "5/7", "tracking": "併單", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭 5/4訂單1（韓購）", "acct": "S9687136", "name": "", "product": "納豆銀杏葉*1瓶 男寶*2瓶", "receiver": "936086717", "phone": "收件人陳靖茗，寄至新北市中和區中興街202巷18號10樓之3，可併單寄出。", "addr": "陳靖茗", "warehouse": "5/11", "shipdate": "5/12", "tracking": "郵局", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭 5/4訂單2（AZA韓購）", "acct": "45966434", "name": "黃慧蘭", "product": "夜間睡眠去脂綠茶錠+買3送1）*1組 한진택배 521179371366", "receiver": "912207267", "phone": "收件人：黃慧蘭寄到吉林門市的，可以併單寄出。", "addr": "黃慧蘭", "warehouse": "5/8*", "shipdate": "5/9", "tracking": "T44534240685", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭5/4訂單3（AZA韓購）", "acct": "42087428", "name": "李賴素珠", "product": "夜間睡眠去脂綠茶錠（買3送1）*3組 한진택배 521179371403", "receiver": "938719058", "phone": "（宜欣的）收件人謝淑蘭寄到江陵門市的，可以併單寄出。", "addr": "謝淑蘭", "warehouse": "5/8*", "shipdate": "5/9", "tracking": "併單", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭5/5訂單2（韓購）", "acct": "45267991", "name": "", "product": "升級版益生菌*2盒", "receiver": "936086717", "phone": "收件人陳靖茗，寄至新北市中和區中興街202巷18號10樓之3，可併單寄出。", "addr": "陳靖茗", "warehouse": "5/8", "shipdate": "5/12", "tracking": "併單", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭 5/6訂單1（韓購）", "acct": "44394376", "name": "", "product": "韓國RTG魚油*5瓶", "receiver": "923224112", "phone": "同一收件人黃心潔寄至東竺門市，可併單寄出", "addr": "黃心潔", "warehouse": "5/12", "shipdate": "5/13", "tracking": "T57776005132", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭 5/6訂單2（韓購）", "acct": "44394376", "name": "", "product": "韓國RTG魚油*3瓶 女性益生菌*4盒", "receiver": "917763757", "phone": "同一收件人劉玉玲寄至中和嘉新店，可併單寄出。", "addr": "劉玉玲", "warehouse": "5/12", "shipdate": "5/13", "tracking": "T57777383405", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭5/9訂單1（韓購） （原訂單編號4/18訂單2（韓購））", "acct": "36095912", "name": "", "product": "蜂蜜飲60包4盒組×1組 升級版鳳梨酵素*1盒", "receiver": "963080377", "phone": "收件人曾秀仙寄到景禮門市的，可以併單寄出。", "addr": "曾秀仙", "warehouse": "5/12", "shipdate": "5/13", "tracking": "", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭5/9訂單3（韓購）", "acct": "45267280", "name": "", "product": "鳳梨酵素*5盒", "receiver": "936086717", "phone": "收件人陳靖茗，寄至新北市中和區中興街202巷18號10樓之3，可併單寄出。", "addr": "陳靖茗", "warehouse": "5/12", "shipdate": "5/13", "tracking": "", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭5/9訂單2（韓購）更換帳號 （原訂單編號4/18訂單4（韓購））", "acct": "36095912", "name": "", "product": "維C2000毫克*2瓶", "receiver": "963080377", "phone": "", "addr": "曾秀仙", "warehouse": "5/12", "shipdate": "5/13", "tracking": "", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭5/10訂單2（韓購）", "acct": "36095949", "name": "", "product": "海藻油*2瓶", "receiver": "934077978", "phone": "收件人林梁賀寄到欣順門市的，可以併單寄出。", "addr": "林梁賀", "warehouse": "5/14", "shipdate": "5/15", "tracking": "", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭5/10訂單3（韓購）", "acct": "36095949", "name": "", "product": "升級版鳳梨酵素*5盒", "receiver": "934077978", "phone": "收件人林梁賀寄到欣順門市的，可以併單寄出。", "addr": "林梁賀", "warehouse": "5/14", "shipdate": "5/15", "tracking": "", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭 5/10訂單4（韓購）", "acct": "33434485", "name": "", "product": "六部曲凝萃安瓶*5瓶", "receiver": "988105795", "phone": "同一收件人陳姿瑩，郵寄新北市中和區民德路25巷5弄4號3樓，請併單寄出。", "addr": "陳姿瑩", "warehouse": "5/14", "shipdate": "5/15", "tracking": "", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭 5/10訂單5（韓購）", "acct": "43497357", "name": "", "product": "六部曲凝萃化妝水*3瓶", "receiver": "988105795", "phone": "同一收件人陳姿瑩，郵寄新北市中和區民德路25巷5弄4號3樓，請併單寄出。", "addr": "陳姿瑩", "warehouse": "5/14", "shipdate": "5/15", "tracking": "", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭4/1訂單1（韓購）", "acct": "41713907", "name": "", "product": "六部曲凝萃化妝水*4瓶", "receiver": "988009029", "phone": "收件人朱僑光寄到上述門市的，可以併單寄出。", "addr": "朱僑光", "warehouse": "4/6", "shipdate": "4/7", "tracking": "併單", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭 4/1訂單2（韓購）", "acct": "S2376007", "name": "", "product": "蜂蜜飲 60包4盒組*1組", "receiver": "910101383", "phone": "", "addr": "丁鈺人", "warehouse": "4/6", "shipdate": "4/7", "tracking": "郵局", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭4/1訂單3（韓購）", "acct": "32534085", "name": "", "product": "鳳梨酵素*4盒", "receiver": "938719058", "phone": "（9）（姿還蘭）收件人：謝淑蘭寄到江陵門市的，可以併單寄出。 （10）享本團2026年清明節優惠組,與蜂蜜飲60包*4盒分開下。", "addr": "謝淑蘭", "warehouse": "4/6", "shipdate": "4/7", "tracking": "併單", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭4/1訂單4（韓購）更換帳號", "acct": "35858474", "name": "", "product": "紅蔘丹*1盒", "receiver": "938719058", "phone": "（給美明）收件人：謝淑蘭寄到江陵門市的，可以併單寄出。", "addr": "謝淑蘭", "warehouse": "4/6", "shipdate": "4/7", "tracking": "併單", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭4/1訂單5（紐西蘭購）", "acct": "45398279", "name": "劉富美", "product": "綠唇貽貝油三盒組*1組 주문번호 :7212604010000086", "receiver": "955569060", "phone": "收件人江雪卿寄到嘉義縣大林鎮溝背里191-3號的，可以併單寄", "addr": "江雪卿", "warehouse": "4/11*", "shipdate": "4/12", "tracking": "", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭 4/2訂單2（韓購）", "acct": "44040909", "name": "", "product": "鳳梨酵素*4盒 螺旋藻*2瓶 積雪草化妝水*1瓶 積雪草潔膚凝露*1瓶", "receiver": "922060522", "phone": "收件人吳思瑤寄到漁人門市的，可以併單寄。", "addr": "吳思瑤", "warehouse": "4/8", "shipdate": "4/9", "tracking": "R43653196922", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭4/2訂單1（韓購）更換帳號", "acct": "41068638", "name": "", "product": "益生菌*1盒", "receiver": "922060522", "phone": "收件人吳思瑤寄到漁人門市的，可以併單寄。", "addr": "吳思瑤", "warehouse": "4/7*", "shipdate": "4/9", "tracking": "併單", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭4/3訂單1（紐西蘭購）", "acct": "36398419", "name": "陳珮弦", "product": "綠唇貽貝油三盒組*1組 주문번호 :7212604030000047", "receiver": "938719058", "phone": "收件人：謝淑蘭寄到江陵門市的，可以併單寄出。", "addr": "謝淑蘭", "warehouse": "4/20", "shipdate": "4/21", "tracking": "", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭4/3訂單2(紐西蘭購）", "acct": "35392699", "name": "郭美珠", "product": "綠唇貽貝油三盒組*1組 주문번호 :7212604030000048", "receiver": "938719058", "phone": "收件人：謝淑蘭寄到江陵門市的，可以併單寄出。", "addr": "謝淑蘭", "warehouse": "4/20", "shipdate": "4/21", "tracking": "", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭 4/4訂單3（韓購）", "acct": "44355336", "name": "翁皇明", "product": "護眼寳4盒組*1組", "receiver": "955569060", "phone": "", "addr": "江雪卿", "warehouse": "4/8", "shipdate": "4/9", "tracking": "郵局", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭4/5訂單1（韓購）", "acct": "42587267", "name": "謝采縈", "product": "三倍高蛋白粉*4盒", "receiver": "976179716", "phone": "收件人袁麗平，同是寄到花壇門市，可以併單。", "addr": "袁麗平", "warehouse": "4/8", "shipdate": "4/9", "tracking": "R43662952704", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭4/5訂單3（韓購）", "acct": "30568637", "name": "", "product": "鳳梨酵素*6盒", "receiver": "933719881", "phone": "收件人同是黃牧芬，寄到7-11新士林門市的，請併單寄。", "addr": "黃牧芬", "warehouse": "4/8", "shipdate": "4/9", "tracking": "R43665789544", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭4/5訂單4（韓購）", "acct": "47843981", "name": "", "product": "維生素D3K2*4瓶   鐵粉*2盒", "receiver": "933719881", "phone": "收件人同是黃牧芬，寄到7-11新士林門市的，請併單寄。", "addr": "黃牧芬", "warehouse": "4/8", "shipdate": "4/9", "tracking": "併單", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭4/5訂單5（韓購）", "acct": "47749641", "name": "本團烏茲別克帳號", "product": "鳳梨酵素*6盒", "receiver": "938719058", "phone": "（轉美明）收件人：謝淑蘭寄到江陵門市的，可以併單寄出。", "addr": "謝淑蘭", "warehouse": "4/8", "shipdate": "4/11", "tracking": "", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭4/5訂單7（韓購）", "acct": "43259354", "name": "", "product": "高濃度魚油*7瓶", "receiver": "955569060", "phone": "收件人江雪卿郵寄上述地址的，可以併單寄出。", "addr": "江雪卿", "warehouse": "4/8", "shipdate": "4/9", "tracking": "併單", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭4/5訂單9（韓購）", "acct": "41323713", "name": "", "product": "維C2000mg*2盒", "receiver": "938719058", "phone": "（轉惠h）收件人：謝淑蘭寄到江陵門市的，可以併單寄出。", "addr": "謝淑蘭", "warehouse": "4/10", "shipdate": "4/12", "tracking": "", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭4/6訂單1（AZA韓購）", "acct": "41897899", "name": "", "product": "WellUP植物性褪黑激素 MELAVERA錠6盒組*1組（=6盒） CJ대한통운 589454415213", "receiver": "938719058", "phone": "（轉惠L)收件人：謝淑蘭寄到江陵門市的，可以併單寄出。", "addr": "謝淑蘭", "warehouse": "4/11*", "shipdate": "4/12", "tracking": "", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭4/7訂單1（韓購）", "acct": "46140296", "name": "", "product": "螺旋藻*2瓶 韓國葉黃素* 2瓶", "receiver": "931949268", "phone": "收件人王育蕙寄到台南市仁德區仁中六街82號的，可併單寄出。", "addr": "王育蕙", "warehouse": "4/11*", "shipdate": "4/12", "tracking": "", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭4/7訂單2（韓購）", "acct": "29753052", "name": "沈雅婷", "product": "水梨桔梗潤喉汁*4盒", "receiver": "931949268", "phone": "收件人王育蕙寄到台南市仁德區仁中六街82號的，可併單寄出。", "addr": "王育蕙", "warehouse": "4/11*", "shipdate": "4/12", "tracking": "", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭4/7訂單3（韓購）", "acct": "32969527", "name": "高子雯", "product": "沙龍染#6G * 4盒 沙龍染#5G * 1盒 沙龍染#4C * 1盒", "receiver": "931949268", "phone": "收件人王育蕙寄到台南市仁德區仁中六街82號的，可併單寄出。", "addr": "王育蕙", "warehouse": "4/11*", "shipdate": "4/12", "tracking": "", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭 4/8訂單3（AZA韓購）", "acct": "S9983101", "name": "李欣潔", "product": "夜間睡眠去脂綠茶錠買3送1*1組 한진택배 521179306631", "receiver": "938719058", "phone": "（給牧芬）收件人：謝淑蘭寄到江陵門市的，可以併單寄出。", "addr": "謝淑蘭", "warehouse": "4/16", "shipdate": "4/17", "tracking": "", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭4/8訂單4（韓購）", "acct": "32052358", "name": "", "product": "蜂蜜飲4盒組×1組 魚油*4盒 鳳梨酵素*4盒", "receiver": "933719881", "phone": "收件人同是黃牧芬，寄到7-11新士林門市的，請併單寄。", "addr": "黃牧芬", "warehouse": "4/11*", "shipdate": "4/12", "tracking": "", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭4/8訂單5（韓購）", "acct": "35354567", "name": "", "product": "500維C*12盒", "receiver": "919375863", "phone": "收件人楊宜欣寄到全家三重龍門店的，可以併單寄出。", "addr": "楊宜欣", "warehouse": "4/11*", "shipdate": "4/12", "tracking": "", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭4/8訂單6(韓購）", "acct": "45213178", "name": "", "product": "鳳梨酵素*6盒", "receiver": "938719058", "phone": "（轉雅各）收件人：謝淑蘭寄到江陵門市的，可以併單寄出。", "addr": "謝淑蘭", "warehouse": "4/11*", "shipdate": "4/12", "tracking": "", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭4/10訂單2(韓購）", "acct": "29849875", "name": "", "product": "S C I腸道益生菌*1盒       （產品編號000975） 阿拉比卡黑咖啡（1·6 g*80包）*2盒", "receiver": "938719058", "phone": "收件人：謝淑蘭寄到江陵門市的，可以併單寄出。", "addr": "謝淑蘭", "warehouse": "4/15", "shipdate": "4/16", "tracking": "", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭4/10訂單1（韓購）增購黑咖啡", "acct": "32534085", "name": "", "product": "蜂膠噴霧 3入/盒*2盒 凝萃防曬乳*2瓶 500mg維C*2盒 阿拉比卡黑咖啡(1·6 g*80包)*1盒", "receiver": "938719058", "phone": "（給玉君）收件人：謝淑蘭寄到江陵門市的，可以併單寄出。", "addr": "謝淑蘭", "warehouse": "4/15", "shipdate": "4/16", "tracking": "", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭3/1訂單1（韓購）", "acct": "S5299430", "name": "", "product": "女性益生菌4瓶組×1組", "receiver": "936086717", "phone": "收件人陳靖茗，寄至新北市中和區中興街202巷18號10樓之3，可併單寄出。", "addr": "陳靖茗", "warehouse": "3/5", "shipdate": "3/6", "tracking": "併單", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭3/1訂單2（韓購）", "acct": "S8066575", "name": "", "product": "槐花女王（女寶）*2瓶         護眼寶*1瓶", "receiver": "936086717", "phone": "收件人陳靖茗，寄至新北市中和區中興街202巷18號10樓之3，可併單寄出。", "addr": "陳靖茗", "warehouse": "3/5", "shipdate": "3/6", "tracking": "併單", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭3/1訂單3（紐西蘭購）", "acct": "43319039", "name": "", "product": "綠唇貽貝油三盒組*1組 주문번호 :7212603010000014", "receiver": "938719058", "phone": "（給素霞）收件人：謝淑蘭寄到江陵門市的，可以併單寄出。", "addr": "謝淑蘭", "warehouse": "3/10", "shipdate": "3/11", "tracking": "P47225695266", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭3/1訂單5（韓購）", "acct": "45851241", "name": "陳丁瓊恩", "product": "護眼寶*4瓶", "receiver": "955569060", "phone": "收件人江雪卿郵寄上述地址的，可以併單寄出。", "addr": "江雪卿", "warehouse": "3/5", "shipdate": "3/6", "tracking": "郵局", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭3/1訂單4（韓購）", "acct": "46389187", "name": "", "product": "螺旋藻*4瓶", "receiver": "955569060", "phone": "收件人江雪卿郵寄上述地址的，可以併單寄出。", "addr": "江雪卿", "warehouse": "3/5", "shipdate": "3/6", "tracking": "併單", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭3/1訂單6（韓購）", "acct": "43319061", "name": "", "product": "魚油×4瓶", "receiver": "955569060", "phone": "收件人江雪卿郵寄上述地址的，可以併單寄出。", "addr": "江雪卿", "warehouse": "3/5", "shipdate": "3/6", "tracking": "併單", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭3/1訂單7（韓購）", "acct": "36095912", "name": "", "product": "2000mg維C*1盒    500mg維C*1盒    升級版鳳梨酵素*4盒    保鮮膜30cm*100m*4支", "receiver": "963080377", "phone": "收件人曾秀仙寄到景禮門市的，可以併單寄出。", "addr": "曾秀仙", "warehouse": "3/5", "shipdate": "3/6", "tracking": "P29882367408", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭3/1訂單8（紐西蘭購）", "acct": "29940082", "name": "", "product": "綠唇貽貝油三盒組*1組 주문번호 :7212603010000068", "receiver": "938719058", "phone": "收件人：謝淑蘭寄到江陵門市的，可以併單寄出。", "addr": "謝淑蘭", "warehouse": "3/14", "shipdate": "3/15", "tracking": "", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭3/1訂單9(韓購）", "acct": "30568348", "name": "", "product": "螺旋藻*1瓶 護眼寳*1瓶 美白牙膏3入組*3組 兒童牙膏2入組*2組", "receiver": "938719058", "phone": "（怡甄牙膏）收件人謝淑蘭寄到江陵門市的，可以併單寄出。", "addr": "謝淑蘭", "warehouse": "3/5", "shipdate": "3/6", "tracking": "併單", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭3/1訂單10（韓購）", "acct": "45427798", "name": "曾宇呈", "product": "沙龍染髮#3C金棕色*8盒", "receiver": "955569060", "phone": "收件人江雪卿郵寄上述地址的，可以併單寄出。", "addr": "江雪卿", "warehouse": "3/5", "shipdate": "3/6", "tracking": "併單", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭3/2訂單1(AZA韓購）", "acct": "S9690655", "name": "吳陳美緞", "product": "Madeca 再生霜除皺眼霜特惠組 40ml *（1+1+1=3支）組*16組（=48支） 한진택배 461753114001 鮭魚安瓶 100ml 2瓶組*10組（=20瓶） 한진택배 461753114001", "receiver": "911122155", "phone": "收件人賴姵予郵寄上述地址的，可以併單寄出。", "addr": "賴姵予", "warehouse": "3/10", "shipdate": "3/11", "tracking": "郵局", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭3/2訂單2（AZA韓購）", "acct": "11905233", "name": "陳秀玉", "product": "鮭魚安瓶 100ml 2瓶組*10組（=20瓶） 한진택배 461753114012", "receiver": "911122155", "phone": "收件人賴姵予郵寄上述地址的，可以併單寄出。", "addr": "賴姵予", "warehouse": "3/8", "shipdate": "3/11", "tracking": "併單", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭 3/2訂單3（韓購）", "acct": "32531562", "name": "", "product": "500維C*2盒   沙龍染髮#5G*1盒     沙龍染髮#4C*1盒", "receiver": "938719058", "phone": "收件人謝淑蘭寄到江陵門市的，可以併單寄出。", "addr": "謝淑蘭", "warehouse": "3/6", "shipdate": "3/7", "tracking": "併單", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭3/3訂單1（韓購）", "acct": "43545342", "name": "", "product": "瓶裝諾麗果（5+1）×1組", "receiver": "922120264", "phone": "", "addr": "董蓉家", "warehouse": "3/8", "shipdate": "3/9", "tracking": "郵局", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭3/3訂單2（韓購）", "acct": "36924533", "name": "", "product": "螺旋藻*5瓶      蜂膠噴霧*2盒", "receiver": "938719058", "phone": "（給姿瑩）收件人謝淑蘭寄到江陵門市的，可以併單寄出。", "addr": "謝淑蘭", "warehouse": "3/8", "shipdate": "3/9", "tracking": "併單", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭3/3訂單3（韓購）", "acct": "43358481", "name": "", "product": "升級版本鳳梨酵素*8盒", "receiver": "936086717", "phone": "收件人陳靖茗，寄至新北市中和區中興街202巷18號10樓之3，可併單寄出。", "addr": "陳靖茗", "warehouse": "3/8", "shipdate": "3/9", "tracking": "郵局", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭3/3訂單4（韓購）", "acct": "29876545", "name": "", "product": "韓國R T G 魚油*2瓶", "receiver": "936086717", "phone": "收件人陳靖茗，寄至新北市中和區中興街202巷18號10樓之3，可併單寄出。", "addr": "陳靖茗", "warehouse": "3/8", "shipdate": "3/9", "tracking": "併單", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭3/3訂單5（韓購）", "acct": "41628805", "name": "", "product": "升級版本鳳梨酵素*8盒", "receiver": "938719058", "phone": "（給牧芬）收件人謝淑蘭寄到江陵門市的，可以併單寄出。", "addr": "謝淑蘭", "warehouse": "3/8", "shipdate": "3/9", "tracking": "併單", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭3/3訂單6（紐西蘭購）", "acct": "39352349", "name": "林佳蓉", "product": "綠唇貽貝油3盒組*1組 주문번호 : 7212603030000096", "receiver": "922060522", "phone": "收件人吳思瑤寄到漁人門市的，可以併單寄。", "addr": "吳思瑤", "warehouse": "3/8*", "shipdate": "3/9", "tracking": "P38562423436", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭3/3訂單7（韓購）", "acct": "42991694", "name": "", "product": "高濃度魚油*3瓶", "receiver": "922060522", "phone": "收件人吳思瑤寄到漁人門市的，可以併單寄。", "addr": "吳思瑤", "warehouse": "3/8", "shipdate": "3/9", "tracking": "併單", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭3/3訂單8（韓購）", "acct": "41967600", "name": "", "product": "益生菌*2盒", "receiver": "922060522", "phone": "收件人吳思瑤寄到漁人門市的，可以併單寄。", "addr": "吳思瑤", "warehouse": "3/8", "shipdate": "3/9", "tracking": "併單", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭3/3訂單9（AZA韓購）", "acct": "13824802", "name": "", "product": "Madeca 再生霜除皺眼霜特惠組 40ml *（1+1+1=3支）/組*4組 한진택배 461768010631", "receiver": "955569060", "phone": "（淑蘭還雪卿）收件人江雪卿郵寄上述地址的，可以併單寄出。", "addr": "江雪卿", "warehouse": "3/10", "shipdate": "3/11", "tracking": "郵局", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭3/4訂單1（韓購）", "acct": "41586663", "name": "", "product": "韓國R T G 魚油*2瓶      護眼寶*2瓶", "receiver": "936086717", "phone": "收件人陳靖茗，寄至新北市中和區中興街202巷18號10樓之3，可併單寄出。", "addr": "陳靖茗", "warehouse": "3/10", "shipdate": "3/11", "tracking": "併單前日郵局", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭3/4訂單3（韓購）", "acct": "35354567", "name": "", "product": "六部曲乳液*2瓶        六部曲化妝水*2瓶    沙龍染髮劑#5G*2盒         BB霜21號*1瓶", "receiver": "965490508", "phone": "收件人許若彤寄到天勝門市的，可以併單寄出。", "addr": "許若彤", "warehouse": "3/10", "shipdate": "3/11", "tracking": "P47236041748", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭3/3訂單4（韓購）", "acct": "32272509", "name": "", "product": "升級版益生菌*2盒", "receiver": "938719058", "phone": "（泳言還蘭）收件人謝淑蘭寄到江陵門市的，可以併單寄出。", "addr": "謝淑蘭", "warehouse": "3/10", "shipdate": "3/11", "tracking": "併單", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭3/4訂單5（紐西蘭購）", "acct": "33784637", "name": "黃晏昀", "product": "綠唇貽貝油3盒組*1組 주문번호 : 7212603040000135", "receiver": "922060522", "phone": "收件人吳思瑤寄到漁人門市的，可以併單寄。", "addr": "吳思瑤", "warehouse": "3/14", "shipdate": "3/15", "tracking": "", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭3/4訂單6（韓購）", "acct": "45824160", "name": "", "product": "六部曲凝萃化妝水*4瓶", "receiver": "932391291", "phone": "收件人王春敏寄至上述門市的，可併單寄出。", "addr": "王春敏", "warehouse": "3/10", "shipdate": "3/11", "tracking": "P47245292514", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭3/4訂單2（韓購）", "acct": "46948519", "name": "", "product": "益生菌*4盒", "receiver": "936086717", "phone": "收件人陳靖茗，寄至新北市中和區中興街202巷18號10樓之3，可併單寄出。", "addr": "陳靖茗", "warehouse": "3/10", "shipdate": "3/11", "tracking": "併單前日郵局", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭3/5訂單1(韓購）", "acct": "45455204", "name": "", "product": "高濃度魚油*6瓶", "receiver": "936086717", "phone": "收件人陳靖茗，寄至新北市中和區中興街202巷18號10樓之3，可併單寄出。", "addr": "陳靖茗", "warehouse": "3/11", "shipdate": "3/12", "tracking": "郵局", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭3/5訂單2（韓購）", "acct": "41769922", "name": "", "product": "能量飲*2盒", "receiver": "936086717", "phone": "收件人陳靖茗，寄至新北市中和區中興街202巷18號10樓之3，可併單寄出。", "addr": "陳靖茗", "warehouse": "3/11", "shipdate": "3/12", "tracking": "併單", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭3/5訂單3（韓購）", "acct": "44807466", "name": "", "product": "鳳梨酵素*8盒       高級魚油*2瓶", "receiver": "919375863", "phone": "收件人楊宜欣寄到全家三重龍門店的，可以併單寄出。", "addr": "楊宜欣", "warehouse": "3/11", "shipdate": "3/12", "tracking": "併單", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭3/5訂單4（韓購）", "acct": "47460128", "name": "", "product": "S C I腸道益生菌*3盒 蜂膠噴霧 3入/盒*2盒", "receiver": "938719058", "phone": "（給阿弘及我）收件人：謝淑蘭寄到江陵門市的，可以併單寄出。", "addr": "謝淑蘭", "warehouse": "3/11", "shipdate": "3/13", "tracking": "", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭3/5訂單5（AZA韓購）", "acct": "47433860", "name": "", "product": "夜間睡眠去脂綠茶錠（買3送1）*2組（=8盒） 한진택배 521179208130", "receiver": "938719058", "phone": "（給芝芝）收件人：謝淑蘭寄到江陵門市的，可以併單寄出。", "addr": "謝淑蘭", "warehouse": "3/10", "shipdate": "3/11", "tracking": "併單", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭3/5訂單7（韓購）", "acct": "31946301", "name": "", "product": "韓國葉黃素*5瓶", "receiver": "988105795", "phone": "收件人陳姿瑩寄到吉客門市的，可以併單寄出。", "addr": "陳姿瑩", "warehouse": "3/11", "shipdate": "3/12", "tracking": "P50993065267", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭3/6訂單1（韓購）", "acct": "31946301", "name": "", "product": "洋車前草籽*2盒", "receiver": "988105795", "phone": "收件人陳姿瑩寄到吉客門市的，可以併單寄出。", "addr": "陳姿瑩", "warehouse": "3/10", "shipdate": "3/12", "tracking": "", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭3/8訂單1（韓購）", "acct": "45150790", "name": "趙友順", "product": "三合一鈣*3瓶", "receiver": "928869844", "phone": "（麗平夥伴）收件人陳美智寄到上述地點的，可以併單寄出。", "addr": "陳美智", "warehouse": "3/12", "shipdate": "3/13", "tracking": "", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭3/8訂單2（韓購）", "acct": "42896675", "name": "", "product": "鳳梨酵素*6盒", "receiver": "928869844", "phone": "（麗平夥伴）收件人陳美智寄到上述地點的，可以併單寄出。", "addr": "陳美智", "warehouse": "3/12", "shipdate": "3/13", "tracking": "", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭3/8訂單4（韓購）", "acct": "47255105", "name": "鐘鑾", "product": "維生素D3K2×4瓶", "receiver": "955569060", "phone": "收件人江雪卿郵寄上述地址的，可以併單寄出。", "addr": "江雪卿", "warehouse": "3/12", "shipdate": "3/13", "tracking": "", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭3/8訂單5（韓購）", "acct": "44551997", "name": "", "product": "鳳梨酵素*4盒", "receiver": "955569060", "phone": "收件人江雪卿郵寄上述地址的，可以併單寄出。", "addr": "江雪卿", "warehouse": "3/12", "shipdate": "3/13", "tracking": "", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭3/8訂單6（韓購）", "acct": "41887606", "name": "", "product": "瓶裝諾麗果（5+1）×1組", "receiver": "955779143", "phone": "收件人黃雅莉寄到上述地址的，可以併單出貨。", "addr": "黃雅莉", "warehouse": "3/12", "shipdate": "3/13", "tracking": "", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭 3/8訂單7（韓購）", "acct": "27706856", "name": "葉秀娟", "product": "鐵粉*2盒        沙龍染髮#6G*3盒       沙龍染髮#3C*1盒", "receiver": "938719058", "phone": "收件人謝淑蘭寄到江陵門市的，可以併單寄出。", "addr": "謝淑蘭", "warehouse": "3/12", "shipdate": "3/13", "tracking": "", "status": "shipped"}, {"month": "2026-06", "team": "訂錯產品，重新下還給淑蘭3/9訂單1", "acct": "36094339", "name": "魏麗新右左共線全球帳號", "product": "阿拉比卡黑咖啡 *2盒 (產品編號000975)", "receiver": "", "phone": "", "addr": "", "warehouse": "3/13", "shipdate": "3/14", "tracking": "", "status": "shipped"}, {"month": "2026-06", "team": "景儀團隊-謝淑蘭  3/9訂單6（韓購）", "acct": "33434485", "name": "", "product": "諾麗酵素瓶裝法（買五送一）*1組", "receiver": "988105795", "phone": "同一收件人陳姿瑩，郵寄新北市中和區民德路25巷5弄4號3樓，請併單寄出。", "addr": "陳姿瑩", "warehouse": "3/13", "shipdate": "3/14", "tracking": "", "status": "shipped"}];
+
+const STATUS = {
+  shipped:      {cls:"ship", label:"已出貨"},
+  at_warehouse: {cls:"wh",   label:"在台灣倉"},
+  processing:   {cls:"proc", label:"處理中"}
+};
+const esc = s => (s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+let ORDERS=[], filter="all", query="", month="all";
+
+function trackingBits(o){
+  const t=(o.tracking||"").trim();
+  if(t && t!=="併單" && t!=="郵局"){
+    const codes=t.split(/[，,]/).map(s=>s.trim()).filter(Boolean);
+    return {front:{cls:"",code:codes[0],note:o.shipdate?("寄出 "+o.shipdate):""}, detail:codes.join("　")};
+  }
+  if(t==="併單") return {front:{cls:"alt",code:"併單寄出",note:o.shipdate?("寄出 "+o.shipdate):""}, detail:"併單寄出（與同收件人其他訂單合併）"};
+  if(t==="郵局") return {front:{cls:"alt",code:"郵局寄出",note:o.shipdate?("寄出 "+o.shipdate):""}, detail:"郵局寄出"};
+  if(o.status==="shipped") return {front:{cls:"alt",code:"單號整理中",note:o.shipdate?("寄出 "+o.shipdate):""}, detail:"單號整理中"};
+  return {front:null, detail:""};
+}
+
+function card(o,i){
+  const st=STATUS[o.status]||STATUS.processing;
+  const tb=trackingBits(o);
+  const stamp = tb.front ? `<div class="stamp ${tb.front.cls}"><span class="dot"></span><span>${esc(tb.front.code)}</span>${tb.front.note?`<span style="color:var(--muted)">· ${esc(tb.front.note)}</span>`:""}</div>` : "";
+  const rows=[];
+  rows.push(["會員編號", `<span class="code">${esc(o.acct)}</span>`]);
+  if(o.name) rows.push(["訂購會員", esc(o.name)]);
+  rows.push(["收貨人", esc(o.receiver||"—")]);
+  rows.push(["電話", `<span class="code">${esc(o.phone||"—")}</span>`]);
+  rows.push(["地址", esc(o.addr||"—")]);
+  if(o.warehouse) rows.push(["台灣倉收到", esc(o.warehouse)]);
+  if(o.shipdate)  rows.push(["台灣寄出", esc(o.shipdate)]);
+  if(tb.detail)   rows.push(["交貨便單號", `<span class="code">${esc(tb.detail)}</span>`]);
+  const dl=rows.map(([k,v])=>`<dt>${k}</dt><dd>${v}</dd>`).join("");
+  return `<article class="order" style="animation-delay:${Math.min(i*22,260)}ms">
+    <button class="order__head" aria-expanded="false">
+      <span class="order__main">
+        <span class="prod">${esc(o.product)}</span>
+        <span class="tag"><b>${esc(o.team)}</b> · 帳號 ${esc(o.acct)}</span>
+      </span>
+      <span class="chip ${st.cls}">${st.label}</span>
+      <svg class="caret" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
+    ${stamp}
+    <div class="detail"><div class="detail__in"><dl class="dl">${dl}</dl></div></div>
+  </article>`;
+}
+
+function apply(){
+  let r=ORDERS.slice();
+  if(month!=="all") r=r.filter(o=>o.month===month);
+  if(filter==="ship") r=r.filter(o=>o.status==="shipped");
+  if(filter==="wait") r=r.filter(o=>o.status!=="shipped");
+  if(query){const q=query.toLowerCase();
+    r=r.filter(o=>[o.acct,o.receiver,o.product,o.team,o.name].some(v=>(v||"").toLowerCase().includes(q)));}
+  const list=document.getElementById("list");
+  list.innerHTML = r.length ? r.map(card).join("")
+    : `<div class="empty"><b>沒有符合的訂單</b>換個狀態，或清掉搜尋關鍵字再看看。</div>`;
+  list.querySelectorAll(".order__head").forEach(b=>b.addEventListener("click",()=>{
+    const o=b.closest(".order"); const open=o.classList.toggle("open");
+    b.setAttribute("aria-expanded", open);
+  }));
+}
+
+function counts(){
+  const t=ORDERS.length, s=ORDERS.filter(o=>o.status==="shipped").length;
+  document.getElementById("cTotal").textContent=t;
+  document.getElementById("cShip").textContent=s;
+  document.getElementById("cWait").textContent=t-s;
+}
+function months(){
+  const ms=[...new Set(ORDERS.map(o=>o.month))].sort().reverse();
+  const sel=document.getElementById("month");
+  sel.innerHTML=`<option value="all">全部月份</option>`+ms.map(m=>`<option value="${m}">${m.replace("-","年")}月</option>`).join("");
+}
+
+document.getElementById("seg").addEventListener("click",e=>{
+  const b=e.target.closest("button"); if(!b)return;
+  filter=b.dataset.f;
+  [...e.currentTarget.children].forEach(x=>x.setAttribute("aria-pressed", x===b));
+  apply();
+});
+document.getElementById("q").addEventListener("input",e=>{query=e.target.value.trim();apply();});
+document.getElementById("month").addEventListener("change",e=>{month=e.target.value;apply();});
+
+async function boot(){
+  if(CONFIG.API_URL){
+    try{
+      const u=`${CONFIG.API_URL}?team=${encodeURIComponent(CONFIG.TEAM)}&key=${encodeURIComponent(CONFIG.KEY)}`;
+      const res=await fetch(u); const j=await res.json();
+      ORDERS=j.orders||j; document.getElementById("stamp").textContent=j.updated?("資料更新："+j.updated):"";
+    }catch(err){ ORDERS=SAMPLE; document.getElementById("stamp").textContent="（無法連線，顯示本機資料）"; }
+  } else { ORDERS=SAMPLE; document.getElementById("stamp").textContent="內建資料：2026 年 6 月"; }
+  counts(); months(); apply();
+}
+boot();
+</script>
+</body>
+</html>
