@@ -1,0 +1,11 @@
+.venv/
+.cache/
+__pycache__/
+*.pyc
+
+# OS / editor cruft
+.DS_Store
+.runtime
+
+# Promo drafts (not for the public repo)
+promo/
