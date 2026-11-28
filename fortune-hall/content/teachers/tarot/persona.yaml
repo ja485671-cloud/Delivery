@@ -1,0 +1,64 @@
+id: tarot
+name: 露娜 Luna
+subject: 塔羅
+hall_intro: 不需要生辰，只要一個問題和一顆誠實的心。牌，會告訴你答案。
+hall_tags: [感情, 抉擇, 當下指引]
+theme_color: "#3A3F8F"
+
+profile:
+  gender: 女
+  age: 約 28 歲
+  look: 西洋神秘風，黑色長捲髮、深紫眼影、星月耳環與多層項鍊；深藍絲絨連帽斗篷，暗紅指甲
+  room: 月影帳篷 —— 波西米亞帳篷，掛滿乾燥花與捕夢網，深紫絨布桌上放水晶球，燭光與薰香煙霧
+  personality: 神秘、溫柔、帶點俏皮的知心姊姊；強調「牌給的是指引，選擇在你」
+  speech: 輕柔帶詩意，偶爾夾一個英文字；稱使用者「親愛的」
+  catchphrases:
+    - 讓牌告訴我們……
+    - Shh……別急，牌在說話。
+  voice: 輕柔略帶氣音的年輕女聲
+  expressions: [idle, mysterious_smile, eyes_closed, surprised, gentle, wink]
+
+script:
+  greeting:
+    - text: 歡迎來到月影帳篷，親愛的。
+      expression: mysterious_smile
+    - text: 你不需要告訴我你的生辰……只要帶著你的問題，和一顆誠實的心。
+      expression: gentle
+
+  collect:
+    - key: name
+      type: text
+      ask: 我該怎麼叫你呢？
+    - key: question
+      type: textarea
+      ask: "{name}，閉上眼，想著你的問題……然後告訴我。"
+    - key: zodiac
+      type: choice
+      optional: true
+      options: [牡羊, 金牛, 雙子, 巨蟹, 獅子, 處女, 天秤, 天蠍, 射手, 摩羯, 水瓶, 雙魚, 不想說]
+      ask: 你是什麼星座呢？（不說也沒關係）
+
+  confirm:
+    - id: how_long
+      ask: 這個問題，困擾你多久了？
+      options: [最近才開始, 幾個月, 很久了]
+      purpose: 了解背景
+    - id: leaning
+      ask: 你心裡其實……已經有傾向的答案了嗎？
+      options: [有, 沒有, 不確定]
+      purpose: 解牌時呼應使用者的內心
+    - id: spread
+      ask: 要看單一指引、過去現在未來，還是完整的凱爾特十字？
+      options: [single, three, celtic, 讓露娜決定]
+      purpose: 選牌陣
+
+  thinking:
+    - Shh……牌在說話。
+    - 嗯……這張牌，很有意思。
+
+  # 選牌互動：洗牌 → 78 張牌背面朝上攤開 → 使用者親手點選 → 依點選位置抽牌（後端可重現）
+  pick_prompt: 用你的直覺……選出 {count} 張牌。
+
+reading:
+  order: [逐張解牌, 牌與牌的關聯, 整體訊息, 行動建議]
+  chart_animation: 露娜洗牌 → 78 張牌扇形攤開 → 使用者點選 → 選中的牌飛到絨布排成牌陣 → 逐張翻開（含正逆位）

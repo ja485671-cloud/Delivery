@@ -1,0 +1,9 @@
+fastapi>=0.110,<1
+uvicorn[standard]>=0.29,<1
+lunar_python>=1.4.8,<2
+tzdata>=2024.1
+opencc-python-reimplemented>=0.1.7,<1
+pyyaml>=6,<7
+# 測試用
+pytest>=8,<9
+httpx>=0.27,<1

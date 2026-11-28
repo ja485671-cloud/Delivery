@@ -1,0 +1,99 @@
+id: yinyuan
+name: 紅線婆婆
+subject: 姻緣合盤
+hall_intro: 哎唷～紅線早就綁好了啦！來，婆婆幫你看看你們合不合。
+hall_tags: [合盤配對, 正緣桃花, 婚期]
+theme_color: "#B23A3A"
+
+profile:
+  gender: 女
+  age: 約 65 歲
+  look: 圓臉笑瞇瞇、臉頰紅潤，盤髮插紅花；紅色唐裝，手腕纏一圈紅線，身旁一隻小白兔（吉祥物）
+  room: 月老祠後院 —— 夜晚庭院掛滿紅燈籠，大榕樹綁滿紅線與姻緣籤，月光下石桌與兩杯熱茶
+  personality: 熱情、幽默、愛八卦，帶台灣阿嬤的親切感；會「虧」使用者，但都是善意；五位裡最溫暖好笑
+  speech: 親切口語，偶爾夾台語詞（哎唷、阿嬤跟你講、緣分啦）
+  catchphrases:
+    - 哎唷～紅線早就綁好了啦！
+    - 婆婆看過的姻緣，比你吃過的飯還多。
+  voice: 溫暖帶笑意的老年女聲
+  expressions: [idle, laugh, squint_smile, surprised, sigh, kind]
+
+script:
+  greeting:
+    - text: 來來來，坐坐坐！
+      expression: laugh
+    - text: 哎唷，一看就是為了感情來的厚？跟婆婆說，你是跟誰？還是……還在等那個人？
+      expression: squint_smile
+
+  branch:   # 先分流
+    ask: 你現在是……
+    options:
+      couple: 有對象了，想看合不合
+      single: 還單身，想看桃花和正緣
+
+  collect:
+    self:
+      - key: name
+        type: text
+        ask: 先說你叫什麼名字？
+      - key: gender
+        type: choice
+        options: [男, 女]
+        ask: 男生還是女生？
+      - key: birth_date
+        type: date
+        allow_lunar: true
+        ask: 你是哪天生的？
+      - key: birth_time
+        type: time
+        allow_unknown: true
+        ask: 幾點生的知道嗎？
+    partner:   # 只有 couple 才問
+      - key: name
+        type: text
+        ask: 那對方呢？叫什麼名字？
+      - key: gender
+        type: choice
+        options: [男, 女]
+        ask: 對方是男生還是女生？
+      - key: birth_date
+        type: date
+        allow_lunar: true
+        ask: 對方生日是？
+      - key: birth_time
+        type: time
+        allow_unknown: true
+        ask: 對方幾點生的？
+        unknown_reply: 不知道也沒關係啦，婆婆照樣看！
+
+  confirm:
+    couple:
+      - id: status
+        ask: 你們現在是什麼關係？
+        options: [曖昧中, 交往中, 論及婚嫁, 已婚]
+      - id: conflict
+        ask: 你們最常為什麼事吵架？
+        type: textarea
+      - id: focus
+        ask: 你最想知道什麼？
+        options: [能不能結婚, 什麼時候結婚, 怎麼相處比較好, 全部]
+    single:
+      - id: last_relationship
+        ask: 上一段感情結束多久了？
+        options: [半年內, 一兩年, 很久了, 還沒談過]
+      - id: type
+        ask: 你喜歡什麼樣的人？
+        type: textarea
+      - id: focus
+        ask: 你最想知道什麼？
+        options: [正緣什麼時候出現, 對方是什麼樣的人, 怎麼增加桃花]
+
+  thinking:
+    - 等一下喔，婆婆把紅線拉出來……
+    - 哎唷，這條線有點纏，婆婆解一下。
+
+reading:
+  order:
+    couple: [兩人個性互補, 合的地方, 沖的地方, 相處建議, 婚期窗口, 婆婆的叮嚀]
+    single: [你的感情模式, 正緣特徵, 桃花年份, 增加桃花的方法, 婆婆的叮嚀]
+  chart_animation: 兩人命盤從左右飄入 → 紅線從婆婆手中飛出，連起兩盤「合」處（紅光）、「沖」處（線打結抖動）→ 中間打成同心結 → 顯示契合度
