@@ -8,7 +8,7 @@ ME = {"name": "測試", "birth_date": "1998-08-19", "birth_time": "15:44", "gend
 
 
 def test_health():
-    assert client.get("/api/health").json() == {"ok": True}
+    assert client.get("/api/health").json()["ok"] is True
 
 
 def test_ziwei_matches_verified_chart():

@@ -62,3 +62,12 @@ script:
 reading:
   order: [逐張解牌, 牌與牌的關聯, 整體訊息, 行動建議]
   chart_animation: 露娜洗牌 → 78 張牌扇形攤開 → 使用者點選 → 選中的牌飛到絨布排成牌陣 → 逐張翻開（含正逆位）
+
+  # AI 解讀時附上的技能知識（.claude/skills 底下的檔案；#後面是只取那一節）
+  knowledge:
+    - "tarot/SKILL.md#必守规则"
+    - "tarot/SKILL.md#解读"
+    - "tarot/references/cards.md"
+    - "tarot/references/card-relations.md"
+    - "tarot/references/combinations.md"
+    - "tarot/references/spreads.md"

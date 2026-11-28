@@ -97,3 +97,17 @@ reading:
     couple: [兩人個性互補, 合的地方, 沖的地方, 相處建議, 婚期窗口, 婆婆的叮嚀]
     single: [你的感情模式, 正緣特徵, 桃花年份, 增加桃花的方法, 婆婆的叮嚀]
   chart_animation: 兩人命盤從左右飄入 → 紅線從婆婆手中飛出，連起兩盤「合」處（紅光）、「沖」處（線打結抖動）→ 中間打成同心結 → 顯示契合度
+
+  # AI 解讀時附上的技能知識（.claude/skills 底下的檔案；#後面是只取那一節）
+  knowledge:
+    - "yinyuan/SKILL.md#总原则"
+    - "yinyuan/SKILL.md#模式一：八字合婚"
+    - "yinyuan/SKILL.md#模式三：紫微夫妻宫"
+    - "yinyuan/SKILL.md#模式五：桃花运势"
+    - "yinyuan/SKILL.md#输出风格"
+    - "yinyuan/SKILL.md#禁止事项"
+    - "yinyuan/SKILL.md#特殊情况"
+    - "yinyuan/references/bazi-matching.md"
+    - "yinyuan/references/ziwei-marriage.md"
+    - "yinyuan/references/taohua-luck.md"
+    - "yinyuan/references/zodiac-compatibility.md"

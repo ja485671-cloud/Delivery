@@ -67,3 +67,13 @@ script:
 reading:
   order: [命宮性格, 身宮, 三方四正, 生年四化, 目前大限, 今明兩年流年, 總結叮嚀]
   chart_animation: 天窗星空旋轉 → 十二星連成十二宮圓環 → 主星如流星落入各宮 → 四化化為四道彩光飛入（祿綠、權紅、科藍、忌黑）
+
+  # AI 解讀時附上的技能知識（.claude/skills 底下的檔案；#後面是只取那一節）
+  knowledge:
+    - "ziwei-doushu/SKILL.md#核心规则"
+    - "ziwei-doushu/SKILL.md#第四步：解读命盘"
+    - "ziwei-doushu/SKILL.md#第五步：大限与流年推演"
+    - "ziwei-doushu/SKILL.md#第六步：输出建议"
+    - "ziwei-doushu/references/stars.md"
+    - "ziwei-doushu/references/sihua.md"
+    - "ziwei-doushu/references/patterns.md"

@@ -64,3 +64,12 @@ script:
 reading:
   order: [用神落宮, 你與對方的處境, 吉凶門, 應期, 方位建議, 一句策略總結]
   chart_animation: 九宮石盤轉動 → 八門、九星、八神三層如齒輪旋轉後歸位 → 值符值使發光 → 吉門金光、凶門暗紅 → 空亡宮籠罩薄霧
+
+  # AI 解讀時附上的技能知識（.claude/skills 底下的檔案；#後面是只取那一節）
+  knowledge:
+    - "qimen-dunjia/SKILL.md#总原则"
+    - "qimen-dunjia/SKILL.md#第 4 步：阅读脚本输出"
+    - "qimen-dunjia/SKILL.md#第 5 步：解读与输出"
+    - "qimen-dunjia/SKILL.md#禁止事项"
+    - "qimen-dunjia/references/yongshen.md"
+    - "qimen-dunjia/references/geju.md"

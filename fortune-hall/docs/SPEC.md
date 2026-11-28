@@ -35,7 +35,7 @@
 | 裝置 | 手機、電腦都要 | 手機直式優先設計，電腦版置中加寬 |
 | 口型 | 方案 A：2D 立繪 + 嘴型切換，加程式做的呼吸、眨眼、微晃 | 角色層設計成可替換，之後可升級 Live2D |
 | 聲音 | 要有。先用 edge-tts（免費），之後可換 Azure 語音（有嘴型時間點） | 嘴型：edge-tts 用音量驅動；Azure 用 viseme |
-| AI | Claude API | 開發期用「假資料模式」，不花錢 |
+| AI | 先用 OpenAI API；程式可切換供應商（`AI_PROVIDER`） | 開發期用 `mock` 假資料模式，不花錢 |
 | 執行環境 | 先在自己電腦跑 | 之後後端上 Railway 或 Google Cloud Run，前端上 Vercel／Cloudflare Pages |
 | 維護方式 | 使用者只需改文字（YAML、Markdown）和換圖 | |
 | 收費、會員、紀錄 | 之後再設計 | 架構先預留 |
@@ -54,9 +54,9 @@
 
 | # | 模組 | 位置 | 狀態 |
 |---|---|---|---|
-| ⑤ | 排盤引擎 API | `server/app/engines/` | ✅ 完成（12 項測試通過） |
-| ⑥ | AI 解讀 | `server/app/reading/`、`content/teachers/*/prompt.md` | ⬜ 下一步 |
-| ③ | 對話互動 | `web/src/dialogue/` | ⬜ |
+| ⑤ | 排盤引擎 API | `server/app/engines/` | ✅ 完成 |
+| ⑥ | AI 解讀 | `server/app/reading/`、`content/teachers/*/prompt.md` | ✅ 完成（mock＋OpenAI；30 項測試通過） |
+| ③ | 對話互動 | `web/src/dialogue/` | ⬜ 下一步 |
 | ④ | 盤面視覺 | `web/src/charts/` | ⬜ 先做紫微 |
 | ② | 角色系統 | `web/src/character/` | ⬜ 先用暫代圖 |
 | ⑦ | 語音 | `server/app/tts/`、`web/src/voice/` | ⬜ |
@@ -105,10 +105,33 @@ AI 不直接輸出一大段文字，而是輸出「台詞腳本」。前端依�
 - 輸入有問題時回 `422 {"error": "中文訊息"}`，前端讓老師把這句話「問」出來。
 - 1945–1961、1974、1975、1979 年 4–10 月出生，會加上台灣日光節約時間的提醒。
 
+| GET | `/api/teachers` | 大廳用：五位老師的名字、介紹、標籤、主題色 |
+| GET | `/api/teachers/{id}` | 房間用：完整人設與台詞 |
+| POST | `/api/reading/{id}/questions` | 排盤後的確認問題（最多 3 題，依盤面自動產生，不花 AI 費用） |
+| POST | `/api/reading/{id}` | AI 解盤，回傳台詞腳本；帶 `followup` 就是追問 |
+
 已知問題與處理：
 - 八字腳本的農曆換算會把 1998 年閏五月當成閏六月，所以「農曆顯示」和「農曆輸入換算」都改用 lunar_python（紫微、奇門腳本本來就用它）。四柱本身不受影響。
 
-## 6. 尚未決定／待確認
+## 6. AI 解讀（模組 ⑥）
+
+送給 AI 的提示詞由四塊組成（`server/app/reading/prompt.py`）：
+
+| 順序 | 內容 | 來源（要改就改這裡） |
+|---|---|---|
+| 1 | 共同規則：繁中台灣用語、不改盤、分寸、輸出格式 | `content/shared/reading-rules.md` |
+| 2 | 老師人設摘要 | `content/teachers/<id>/persona.yaml` 的 `profile`、`reading.order` |
+| 3 | 老師的口吻與解讀順序 | `content/teachers/<id>/prompt.md` |
+| 4 | 命理知識（技能裡挑選的章節） | `persona.yaml` 的 `reading.knowledge` |
+
+之後再接上這次的盤、客人資料、確認問題的回答、可點亮代號清單、表情清單。
+
+- OpenAI 使用 Structured Outputs（strict JSON Schema），點亮代號和表情都用 enum 限制；回來後仍會再檢查一次。
+- 提示詞固定部分約 3 千（塔羅）到 1.9 萬字（姻緣），再加上盤面資料。
+- 確認問題用規則產生：紫微問「18 歲所在大限」那十年是否離家（驗證時辰）；八字問「上一步大運」那幾年順不順（判定喜用神）。
+- 送給 AI 的資料包含客人的名字與生辰，上線前的個資說明要寫到這點。
+
+## 7. 尚未決定／待確認
 
 - [ ] 美術風格（三選一或混搭）
 - [ ] 確認問題的最終內容（目前寫在各 `persona.yaml` 的 `confirm`）

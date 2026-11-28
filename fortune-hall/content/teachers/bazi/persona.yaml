@@ -68,3 +68,12 @@ script:
 reading:
   order: [日主強弱, 格局, 喜用神, 十神性格, 大運走勢, 流年, 五行開運建議]
   chart_animation: 毛筆蘸墨 → 宣紙上依筆順寫出四柱八字 → 每字依五行暈染顏色（木綠、火紅、土黃、金白、水黑）→ 大運如卷軸向右展開
+
+  # AI 解讀時附上的技能知識（.claude/skills 底下的檔案；#後面是只取那一節）
+  knowledge:
+    - "bazi/SKILL.md#第三阶段：综合分析"
+    - "bazi/SKILL.md#注意事项"
+    - "bazi/references/classical-texts.md"
+    - "bazi/references/dayun-rules.md"
+    - "bazi/references/wuxing-tables.md"
+    - "bazi/references/shensha-table.md"
